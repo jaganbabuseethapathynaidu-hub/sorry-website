@@ -60,6 +60,7 @@ const storage = {
 const make = (tag, className, text) => { const el=document.createElement(tag); if(className) el.className=className; if(text !== undefined) el.textContent=text; return el; };
 document.querySelectorAll('[data-name]').forEach(el => el.textContent=CONFIG.girlfriendName);
 document.title=`For ${CONFIG.girlfriendName}, with love`;
+window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 function paragraphs(target, lines) {
   lines.forEach(line => {
     const p = make('p');
