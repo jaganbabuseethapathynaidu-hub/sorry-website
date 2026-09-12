@@ -214,18 +214,20 @@ function answerMarriage(yes){
 const marriageNoButton = $('#marry-not-yet');
 function dodgeMarriageNoButton(){
   if(!marriageNoButton) return;
-  const parent = marriageNoButton.parentElement;
-  if(!parent) return;
-  parent.style.position = 'relative';
-  parent.style.minHeight = '110px';
-  marriageNoButton.style.position = 'absolute';
-  const maxX = Math.max(10, parent.clientWidth - marriageNoButton.offsetWidth - 18);
-  const maxY = Math.max(10, parent.clientHeight - marriageNoButton.offsetHeight - 18);
+  const pageWidth = window.innerWidth;
+  const pageHeight = window.innerHeight;
+  const buttonWidth = marriageNoButton.offsetWidth || 160;
+  const buttonHeight = marriageNoButton.offsetHeight || 52;
+  const padding = 24;
+  const maxX = Math.max(padding, pageWidth - buttonWidth - padding);
+  const maxY = Math.max(padding, pageHeight - buttonHeight - padding);
   const x = Math.random() * maxX;
   const y = Math.random() * maxY;
+  marriageNoButton.style.position = 'fixed';
   marriageNoButton.style.left = `${x}px`;
   marriageNoButton.style.top = `${y}px`;
   marriageNoButton.style.transform = 'none';
+  marriageNoButton.style.zIndex = '9999';
 }
 marriageNoButton.addEventListener('pointerenter', dodgeMarriageNoButton);
 marriageNoButton.addEventListener('click', (event) => {
