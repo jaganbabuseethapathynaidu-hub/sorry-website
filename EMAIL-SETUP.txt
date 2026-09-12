@@ -1,0 +1,13 @@
+EMAIL DELIVERY — NOT CONNECTED YET
+Sender: mukeshannaiya@gmail.com
+Recipient: suryanarayanan2410@gmail.com
+Body: empty (attachment only)
+Attachment: the downloaded our-memories-yes.html or our-memories-not-yet.html
+
+Either final answer downloads a self-contained static HTML snapshot with all five photos, poems, answer, current meter/coupons and the music clip. The source website remains interactive.
+
+Automatic sending needs a connected email provider and authorization for the sender. An email address alone cannot send email. Never put a Gmail password, app password, private API key, or OAuth refresh token in these public JavaScript files.
+
+Until connected, send the downloaded HTML manually from the sender account to the recipient, leaving the email body blank. Downloads cannot be attached automatically through a mailto link.
+
+snapshot-assets.js embeds the current CSS and media. Regenerate it if the photos, music, or styles change.
