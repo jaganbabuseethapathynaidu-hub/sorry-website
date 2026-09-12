@@ -173,15 +173,27 @@ audio.src=CONFIG.musicPath;audio.volume=.45;audio.loop=true;audio.muted=false;
 function playMusic(){
   if(!audio.src) return;
   audio.muted=false;
-  audio.play().catch(() => {});
+  const result = audio.play();
+  if(result && typeof result.catch === 'function') result.catch(() => {});
+}
+
+function unlockMusic(){
+  audio.muted = false;
+  playMusic();
 }
 
 audio.addEventListener('error', () => {
   audio.muted = false;
 });
 
+['pointerdown','touchstart','keydown','click','scroll'].forEach(eventName => {
+  document.addEventListener(eventName, unlockMusic, { once: true, passive: true });
+});
+
 window.addEventListener('load',()=>{
-  setTimeout(() => playMusic(), 600);
+  setTimeout(() => {
+    if(audio.paused) playMusic();
+  }, 700);
 }, { once: true });
 
 if('IntersectionObserver' in window && !reducedMotion.matches){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.remove('pending');observer.unobserve(entry.target);}}),{threshold:.08});document.querySelectorAll('.reveal').forEach(el=>{el.classList.add('pending');observer.observe(el);});}

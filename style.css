@@ -21,6 +21,7 @@
 
 #download-copy[hidden]{display:none}
 #download-status{margin:20px 0 12px}
-.marriage-card .answers{position:relative;min-height:110px}
-.marriage-card #marry-not-yet{position:relative;transition:left .18s ease,top .18s ease,transform .18s ease}
+.marriage-card .answers{position:relative;min-height:150px;display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+.marriage-card #marry-yes{position:relative;z-index:2}
+.marriage-card #marry-not-yet{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);transition:left .18s ease,top .18s ease,transform .18s ease;z-index:1}
 .answers{margin-top:20px}
