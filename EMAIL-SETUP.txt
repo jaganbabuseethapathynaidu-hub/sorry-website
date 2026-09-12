@@ -1,6 +1,6 @@
 EMAIL DELIVERY — NOT CONNECTED YET
-Sender: mukeshannaiya@gmail.com
-Recipient: suryanarayanan2410@gmail.com
+Sender: 
+Recipient: 
 Body: empty (attachment only)
 Attachment: the downloaded our-memories-yes.html or our-memories-not-yet.html
 

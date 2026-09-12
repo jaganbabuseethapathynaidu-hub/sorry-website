@@ -168,18 +168,44 @@ function answer(yes){selectedAnswer = yes;const box=$('#answer');box.replaceChil
 $('#yes').addEventListener('click',()=>answer(true));$('#not-yet').addEventListener('click',()=>answer(false));
 
 const audio=$('#music'),musicButton=$('#music-toggle');let musicPending=false;
-audio.src=CONFIG.musicPath;audio.volume=.45;
+audio.src=CONFIG.musicPath;audio.volume=.45;audio.loop=true;
+
 function musicUnavailable(){musicPending=false;musicButton.textContent='Music unavailable ♡';musicButton.setAttribute('aria-pressed','false');musicButton.disabled=true;musicButton.title='Add assets/romantic-music.mp3 to enable music.';}
+
+async function playMusic(){
+  if(!audio.src) return;
+  musicPending=true;
+  try{await audio.play();musicButton.textContent='Music On 🎵';musicButton.setAttribute('aria-pressed','true');}
+  catch(error){if(error.name==='NotAllowedError'){musicButton.textContent='Tap to play 🎵';musicButton.setAttribute('aria-pressed','false');}else musicUnavailable();}
+  finally{musicPending=false;}
+}
+
 audio.addEventListener('error',musicUnavailable);
 musicButton.addEventListener('click',async()=>{
   if(musicPending)return;
   if(!audio.paused){audio.pause();musicButton.textContent='Music Off 🔇';musicButton.setAttribute('aria-pressed','false');return;}
-  musicPending=true;
-  try{await audio.play();musicButton.textContent='Music On 🎵';musicButton.setAttribute('aria-pressed','true');}
-  catch(error){if(error.name==='NotAllowedError'){musicButton.textContent='Tap to play 🎵';}else musicUnavailable();}
-  finally{musicPending=false;}
+  await playMusic();
 });
+
+window.addEventListener('load',()=>{
+  setTimeout(()=>{ if(audio.paused && !musicButton.disabled) playMusic(); }, 900);
+}, { once: true });
+
 if('IntersectionObserver' in window && !reducedMotion.matches){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.remove('pending');observer.unobserve(entry.target);}}),{threshold:.08});document.querySelectorAll('.reveal').forEach(el=>{el.classList.add('pending');observer.observe(el);});}
+
+let marriageSelectedAnswer = null;
+function answerMarriage(yes){
+  marriageSelectedAnswer = yes;
+  const box=$('#marry-answer');
+  const dateText = '08-12-2029';
+  box.replaceChildren(
+    make('strong','',yes?`Forever sounds perfect, ${CONFIG.girlfriendName}. 💍`:'I understand. ❤️'),
+    make('span','',yes?`I want to build a life with you, one beautiful day at a time.\nDate: ${dateText}`:"Take all the time you need.\nI only wanted to ask with my whole heart."));
+  if(yes)burst($('#marry-yes'),true);
+  box.focus({preventScroll:true});
+  downloadMarriageSnapshot();
+}
+$('#marry-yes').addEventListener('click',()=>answerMarriage(true));$('#marry-not-yet').addEventListener('click',()=>answerMarriage(false));
 
 // Export a static, self-contained keepsake. No sending credentials live here.
 function downloadSnapshot(){
@@ -218,3 +244,40 @@ function downloadSnapshot(){
   }
 }
 $('#download-copy').addEventListener('click',downloadSnapshot);
+
+function downloadMarriageSnapshot(){
+  if(marriageSelectedAnswer === null) return;
+  const status = $('#marry-download-status');
+  try {
+    const assets = window.SNAPSHOT_ASSETS;
+    if(!assets) throw new Error('Snapshot assets are missing');
+    const copy = document.documentElement.cloneNode(true);
+    copy.querySelectorAll('script,link[rel="stylesheet"],#intro,#heart-layer,.skip-link,noscript,#marry-download-status,#marry-download-copy,.answers,.carousel-controls,.scroll-note,.whats,#reset-meter,#music-toggle').forEach(el=>el.remove());
+    copy.querySelector('body').classList.remove('intro-open');
+    copy.querySelectorAll('[inert]').forEach(el=>el.removeAttribute('inert'));
+    copy.querySelectorAll('.pending').forEach(el=>el.classList.remove('pending'));
+    copy.querySelectorAll('.memory-card').forEach(el=>{el.className='memory-card';el.removeAttribute('aria-hidden');});
+    copy.querySelectorAll('.photo img').forEach(img=>{
+      const name=img.getAttribute('src').split('/').pop().split('?')[0];
+      if(assets.photos[name]){img.src=assets.photos[name];img.hidden=false;img.previousElementSibling.hidden=true;}
+    });
+    copy.querySelectorAll('button').forEach(el=>el.disabled=true);
+    const music=copy.querySelector('audio');
+    music.src=assets.music;music.controls=true;music.removeAttribute('autoplay');
+    const style=document.createElement('style');
+    style.textContent=assets.css+'\n#memory-cards{display:grid;gap:30px;aspect-ratio:auto}.memory-card{position:relative;inset:auto;opacity:1;transform:none!important}.photo{aspect-ratio:1;height:auto}.memory-caption{margin-bottom:12px}.carousel{cursor:default}.memory-card{pointer-events:auto}.reveal{opacity:1!important;translate:none!important}*{animation:none!important;transition:none!important}audio{display:block;max-width:90%;margin:20px auto}#final .question-card>.small-note{display:none}';
+    copy.querySelector('head').append(style);
+    const response=document.createElement('p');response.className='big-sorry';response.textContent='Your answer: '+(marriageSelectedAnswer?'Yes, forever 💍':'Not yet...');
+    copy.querySelector('#marry-answer').prepend(response);
+    const blob=new Blob(['<!doctype html>\n'+copy.outerHTML],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement('a');link.href=url;link.download='marry-me-'+(marriageSelectedAnswer?'yes':'not-yet')+'.html';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+    $('#marry-download-copy').hidden=false;
+    status.textContent='Your HTML keepsake is ready. No email has been sent.';
+  } catch(error) {
+    $('#marry-download-copy').hidden=false;
+    status.textContent='The download could not be prepared. Please try Download HTML again.';
+    console.error('Marriage snapshot download failed:',error);
+  }
+}
+$('#marry-download-copy').addEventListener('click',downloadMarriageSnapshot);
